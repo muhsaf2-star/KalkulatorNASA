@@ -134,6 +134,19 @@ body{
   gap:10px
 }
 
+
+.product-wizard{border:1px solid #e7edf5;background:#fbfdff;border-radius:12px;padding:12px;margin-top:4px}
+.wizard-step{font-size:10px;font-weight:800;color:#667085;letter-spacing:.45px;margin:2px 0 8px}
+.product-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.product-category{display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;border:1px solid #dbe3ef;border-radius:10px;background:#fff;color:#344054;font-size:12px;font-weight:800;cursor:pointer;padding:8px}
+.product-category.active{background:#e8f3ff;border-color:#087bea;color:#087bea;box-shadow:0 0 0 1px #087bea inset}
+.product-category-icon{font-size:17px}
+.product-subcategory-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:14px}
+.product-subcategory{border:1px solid #dbe3ef;border-radius:9px;background:#fff;color:#344054;padding:10px 5px;font-size:11px;font-weight:700;cursor:pointer;min-height:39px}
+.product-subcategory.active{background:#087bea;color:#fff;border-color:#087bea}
+.product-count{font-size:10px;color:#667085;margin-top:6px;min-height:13px}
+@media(max-width:600px){.product-wizard{padding:10px}.product-category{flex-direction:column;gap:3px;min-height:61px;font-size:11px}.product-category-icon{font-size:19px}.product-subcategory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wizard-step{font-size:9px}}
+
 .grid4{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -547,6 +560,22 @@ th{
 .acc-price-item.active{display:block}
 .acc-price-item input:disabled{background:#f5f7fa;color:#98a2b3;cursor:not-allowed}
 .acc-hint{font-size:10px;color:#7b8798;margin:-2px 0 10px}
+.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.choice-option{position:relative}
+.choice-option input.choiceRadio{position:absolute;opacity:0;pointer-events:none}
+.choice-card{display:flex;align-items:center;gap:10px;padding:12px 13px;border:1px solid #e1e7ef;border-radius:11px;background:#fff;font-size:12px;font-weight:800;cursor:pointer;transition:.18s ease;min-height:52px}
+.choice-card:hover{border-color:#b8d9fa;background:#fbfdff}
+.choice-dot{width:21px;height:21px;border:1.5px solid #aeb8c5;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;transition:.18s ease}
+.choice-dot::after{content:'';width:9px;height:9px;border-radius:50%;background:#fff;opacity:0;transition:.15s ease}
+.choice-option input.choiceRadio:checked + .choice-card{border-color:#087bea;background:#f3f9ff;box-shadow:0 0 0 2px rgba(8,123,234,.08)}
+.choice-option input.choiceRadio:checked + .choice-card .choice-dot{background:#087bea;border-color:#087bea}
+.choice-option input.choiceRadio:checked + .choice-card .choice-dot::after{opacity:1}
+.choice-card .choice-status{margin-left:auto;font-size:9px;color:#98a2b3;font-weight:700}
+.choice-option input.choiceRadio:checked + .choice-card .choice-status{color:#087bea}
+.dynamic-price{display:none;margin-top:10px}
+.dynamic-price.active{display:block}
+.dynamic-price input:disabled{background:#f5f7fa;color:#98a2b3;cursor:not-allowed}
+@media(max-width:600px){.choice-grid{grid-template-columns:repeat(2,1fr)}.choice-card{font-size:11px;padding:10px;min-height:47px}.choice-status{font-size:8px!important}.choice-dot{width:20px;height:20px}}
 @media(max-width:600px){.acc-grid{grid-template-columns:repeat(2,1fr)}.acc-card{font-size:11px;padding:10px;min-height:47px}.acc-status{font-size:8px!important}.acc-box{width:20px;height:20px}}
 .receipt{background:#fff;border:1px dashed #b8c1ce;border-radius:10px;padding:14px;font-size:12px}
 .receipt-head{text-align:center;font-weight:800;font-size:15px;padding-bottom:8px;border-bottom:1px dashed #cbd2dc;margin-bottom:8px}
@@ -582,6 +611,16 @@ th{
     <div style="text-align:center;color:#667085;font-size:11px;margin-top:-14px;margin-bottom:20px">
       Samsung Sales Calculator
     </div>
+
+    <label class="label">
+      Store
+    </label>
+
+    <select id="loginStore">
+      <option>Memuat Store...</option>
+    </select>
+
+    <div style="height:10px"></div>
 
     <label class="label">
       NIK
@@ -631,11 +670,6 @@ th{
     <div class="user">
       <div id="headStore">-</div>
       <div id="headEro">-</div>
-      <div id="tshStoreWrap" class="hidden" style="margin-top:5px">
-        <select id="tshStoreSelect" style="height:30px;font-size:10px;min-width:180px" onchange="tshStoreChanged()">
-          <option value="ALL">ALL STORE</option>
-        </select>
-      </div>
     </div>
 
   </div>
@@ -797,18 +831,24 @@ th{
     <div style="height:10px"></div>
 
 
-    <label class="label">
-      Produk
-    </label>
+    <div class="product-wizard">
+      <div class="wizard-step">1. PILIH KATEGORI</div>
+      <div class="product-category-grid" id="productCategoryGrid">
+        <button type="button" class="product-category active" data-category="Device" onclick="setProductCategory('Device')"><span class="product-category-icon">📱</span><span>Device</span></button>
+        <button type="button" class="product-category" data-category="Aksesoris" onclick="setProductCategory('Aksesoris')"><span class="product-category-icon">🎧</span><span>Aksesoris</span></button>
+        <button type="button" class="product-category" data-category="Operator" onclick="setProductCategory('Operator')"><span class="product-category-icon">📶</span><span>Operator</span></button>
+      </div>
 
-    <select
-      id="productSelect"
-      onchange="productChanged()"
-    >
-      <option value="">
-        Pilih Produk
-      </option>
-    </select>
+      <div class="wizard-step">2. PILIH JENIS</div>
+      <div class="product-subcategory-grid" id="productSubcategoryGrid"></div>
+
+      <div class="wizard-step">3. CARI DAN PILIH PRODUK</div>
+      <input id="productSearch" type="search" placeholder="Cari nama produk..." oninput="renderProductOptions()" autocomplete="off">
+      <select id="productSelect" onchange="productChanged()">
+        <option value="">Pilih Produk</option>
+      </select>
+      <div class="product-count" id="productCount">Pilih kategori dan jenis produk.</div>
+    </div>
 
 
     <div class="price">
@@ -914,28 +954,60 @@ th{
   <!-- SCP -->
   <div class="card">
     <div class="title">SCP / Service Contract</div>
-    <div class="radio-row">
-      <label class="checkitem"><input type="radio" name="scpDuration" value="1 Tahun" onchange="calc()"> 1 Tahun</label>
-      <label class="checkitem"><input type="radio" name="scpDuration" value="2 Tahun" onchange="calc()"> 2 Tahun</label>
+    <div class="acc-hint">Pilih masa SCP. Harga hanya muncul setelah pilihan dibuat.</div>
+    <div class="choice-grid">
+      <div class="choice-option">
+        <input class="choiceRadio" type="radio" id="scp1" name="scpDuration" value="1 Tahun" onchange="toggleSCP();calc()">
+        <label class="choice-card" for="scp1">
+          <span class="choice-dot"></span><span>1 Tahun</span><span class="choice-status">Pilih</span>
+        </label>
+      </div>
+      <div class="choice-option">
+        <input class="choiceRadio" type="radio" id="scp2" name="scpDuration" value="2 Tahun" onchange="toggleSCP();calc()">
+        <label class="choice-card" for="scp2">
+          <span class="choice-dot"></span><span>2 Tahun</span><span class="choice-status">Pilih</span>
+        </label>
+      </div>
     </div>
-    <div style="margin-top:10px">
+    <div id="scpPriceWrap" class="dynamic-price">
       <label class="label">Harga SCP</label>
-      <input id="scpPrice" inputmode="numeric" placeholder="Rp 0" oninput="fmt(this);calc()">
+      <input id="scpPrice" disabled inputmode="numeric" placeholder="Rp 0" oninput="fmt(this);calc()">
     </div>
   </div>
 
   <!-- OPERATOR -->
   <div class="card">
     <div class="title">Operator</div>
-    <div class="radio-row">
-      <label class="checkitem"><input type="radio" name="operator" value="XL" onchange="calc()"> XL</label>
-      <label class="checkitem"><input type="radio" name="operator" value="Indosat" onchange="calc()"> Indosat</label>
-      <label class="checkitem"><input type="radio" name="operator" value="Telkomsel" onchange="calc()"> Telkomsel</label>
-      <label class="checkitem"><input type="radio" name="operator" value="" onchange="calc()"> Tidak Ada</label>
+    <div class="acc-hint">Pilih salah satu operator. Jika tidak ada, pilih Tidak Ada.</div>
+    <div class="choice-grid">
+      <div class="choice-option">
+        <input class="choiceRadio" type="radio" id="opXL" name="operator" value="XL" onchange="toggleOperator();calc()">
+        <label class="choice-card" for="opXL">
+          <span class="choice-dot"></span><span>XL</span><span class="choice-status">Pilih</span>
+        </label>
+      </div>
+      <div class="choice-option">
+        <input class="choiceRadio" type="radio" id="opIndosat" name="operator" value="Indosat" onchange="toggleOperator();calc()">
+        <label class="choice-card" for="opIndosat">
+          <span class="choice-dot"></span><span>Indosat</span><span class="choice-status">Pilih</span>
+        </label>
+      </div>
+      <div class="choice-option">
+        <input class="choiceRadio" type="radio" id="opTelkomsel" name="operator" value="Telkomsel" onchange="toggleOperator();calc()">
+        <label class="choice-card" for="opTelkomsel">
+          <span class="choice-dot"></span><span>Telkomsel</span><span class="choice-status">Pilih</span>
+        </label>
+      </div>
+      <div class="choice-option">
+        <input class="choiceRadio" type="radio" id="opNone" name="operator" value="" onchange="toggleOperator();calc()">
+        <label class="choice-card" for="opNone">
+          <span class="choice-dot"></span><span>Tidak Ada</span><span class="choice-status">Pilih</span>
+        </label>
+      </div>
     </div>
-    <div style="margin-top:10px">
+    <div id="operatorPriceWrap" class="dynamic-price">
       <label class="label">Harga Operator</label>
-      <input id="operatorPrice" inputmode="numeric" placeholder="Rp 0" oninput="fmt(this);calc()">
+      <input id="operatorPrice" disabled inputmode="numeric" placeholder="Rp 0" oninput="fmt(this);calc()">
     </div>
   </div>
 
@@ -1358,65 +1430,6 @@ th{
 
 <section id="master" class="hidden">
 
-  <div id="tshManagement" class="hidden">
-    <div class="card">
-      <div class="title">👑 TSH / SL Management <span class="badge">TSH + SL</span></div>
-      <div class="mini-note">Tambah Store dan User tanpa perlu mengedit Google Sheet langsung.</div>
-
-      <div class="grid2">
-        <div>
-          <label class="label">Store ID</label>
-          <input id="newStoreId" placeholder="Contoh: SMB001">
-        </div>
-        <div>
-          <label class="label">Nama Store</label>
-          <input id="newStoreName" placeholder="Nama Store">
-        </div>
-        <div>
-          <label class="label">Area</label>
-          <input id="newStoreArea" placeholder="Area / Kota">
-        </div>
-        <div>
-          <label class="label">NIK TSH</label>
-          <input id="newStoreTshNik" placeholder="Kosong = TSH yang login">
-        </div>
-      </div>
-      <div class="btnrow">
-        <button class="btn primary" onclick="addStoreUI()">+ Tambah Store</button>
-      </div>
-      <div id="managementMsg" class="hidden"></div>
-    </div>
-
-    <div class="card">
-      <div class="title">Tambah User</div>
-      <div class="grid2">
-        <div>
-          <label class="label">NIK</label>
-          <input id="newUserNik" placeholder="NIK">
-        </div>
-        <div>
-          <label class="label">Nama</label>
-          <input id="newUserName" placeholder="Nama">
-        </div>
-        <div>
-          <label class="label">Role</label>
-          <select id="newUserRole" onchange="userRoleChanged()">
-            <option value="SALES">SALES</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="TSH">TSH</option>
-            <option value="SL">SL</option>
-          </select>
-        </div>
-        <div id="newUserStoreWrap">
-          <label class="label">Store</label>
-          <select id="newUserStore"></select>
-        </div>
-      </div>
-      <div class="btnrow">
-        <button class="btn primary" onclick="addUserUI()">+ Tambah User</button>
-      </div>
-    </div>
-  </div>
 
   <div class="card">
 
@@ -1445,16 +1458,6 @@ th{
 
   </div>
 
-
-  <div class="card hidden" id="userMasterCard">
-
-    <div class="title">
-      User
-    </div>
-
-    <div id="userMaster" class="mastergrid"></div>
-
-  </div>
 
   <div class="card">
 
@@ -1488,7 +1491,6 @@ let currentUser = null;
 
 let masterData = {
   stores:[],
-  users:[],
   eros:[],
   products:[]
 };
@@ -1592,7 +1594,6 @@ async function init(){
 
     masterData = {
       stores:r.stores || [],
-      users:r.users || [],
       eros:r.eros || [],
       products:r.products || []
     };
@@ -1616,8 +1617,13 @@ async function init(){
       currentUser =
         JSON.parse(s);
 
-      if(currentUser.nik){
+      if(
+        currentUser.storeId &&
+        currentUser.nik
+      ){
+
         openApp();
+
       }
 
     }
@@ -1637,29 +1643,12 @@ async function init(){
 
 
 function renderStores(){
-  const stores=(masterData.stores||[]).filter(x=>String(x.status||'ACTIVE').toUpperCase()==='ACTIVE');
 
-  const tshSelect=$('tshStoreSelect');
-  if(tshSelect){
-    const current=tshSelect.value||'ALL';
-    tshSelect.innerHTML='<option value="ALL">ALL STORE</option>'+
-      stores.map(x=>`<option value="${esc(x.storeId)}">${esc(x.storeName)}</option>`).join('');
-    if([...tshSelect.options].some(o=>o.value===current)) tshSelect.value=current;
-  }
-
-  const userStore=$('newUserStore');
-  if(userStore){
-    userStore.innerHTML=stores.map(x=>`<option value="${esc(x.storeId)}">${esc(x.storeName)}</option>`).join('');
-  }
-}
-
-function renderProducts(){
-
-  $('productSelect').innerHTML =
-    '<option value="">Pilih Produk</option>';
+  $('loginStore').innerHTML =
+    '<option value="">Pilih Store</option>';
 
 
-  masterData.products
+  masterData.stores
     .filter(
       x =>
       String(
@@ -1669,9 +1658,9 @@ function renderProducts(){
     )
     .forEach(x=>{
 
-      $('productSelect').innerHTML +=
-      `<option value="${esc(x.productId)}">
-        ${esc(x.productName)}
+      $('loginStore').innerHTML +=
+      `<option value="${esc(x.storeId)}">
+        ${esc(x.storeName)}
       </option>`;
 
     });
@@ -1679,71 +1668,249 @@ function renderProducts(){
 }
 
 
+let selectedProductCategory = 'Device';
+let selectedProductSubcategory = 'Series S';
+const productSubcategories = {
+  Device: ['Series A','Series S','Series Z','Series Tab'],
+  Aksesoris: ['Watch','Buds','Aksesoris Lain'],
+  Operator: ['XL','Indosat','Telkomsel']
+};
+
+function normalizeProductCategory(value){
+  const v=String(value||'').trim().toLowerCase();
+  if(['device','hp','smartphone','tablet'].includes(v)) return 'Device';
+  if(['aksesoris','accessory','accessories','acc'].includes(v)) return 'Aksesoris';
+  if(['operator','sim','telco'].includes(v)) return 'Operator';
+  return '';
+}
+
+function inferProductCategory(p){
+  const explicit=normalizeProductCategory(p.category);
+  if(explicit) return explicit;
+  const type=String(p.productType||'').trim().toLowerCase();
+  const name=String(p.productName||'').trim().toLowerCase();
+  if(['watch','buds','accessory','accessories','acc'].includes(type) || /galaxy watch|galaxy buds|charger|casing|adapter|adaptor|cable|antigores|earbuds|aksesoris/.test(name)) return 'Aksesoris';
+  if(['xl','indosat','telkomsel','operator'].includes(type)) return 'Operator';
+  return 'Device';
+}
+
+function inferProductSubcategory(p){
+  const explicit=String(p.subCategory||'').trim();
+  if(explicit) return explicit;
+  const type=String(p.productType||'').trim().toLowerCase();
+  const name=String(p.productName||'').trim().toLowerCase();
+  const category=inferProductCategory(p);
+  if(category==='Device'){
+    if(type==='a' || /galaxy a\d|series a/.test(name)) return 'Series A';
+    if(type==='s' || /galaxy s\d|series s/.test(name)) return 'Series S';
+    if(type==='z' || /galaxy z|fold\d|flip\d|series z/.test(name)) return 'Series Z';
+    if(type==='tab' || /galaxy tab|series tab/.test(name)) return 'Series Tab';
+  }
+  if(category==='Aksesoris'){
+    if(type==='watch' || /watch/.test(name)) return 'Watch';
+    if(type==='buds' || /buds|earbuds/.test(name)) return 'Buds';
+    return 'Aksesoris Lain';
+  }
+  if(category==='Operator'){
+    if(/indosat/.test(type+' '+name)) return 'Indosat';
+    if(/telkomsel/.test(type+' '+name)) return 'Telkomsel';
+    return 'XL';
+  }
+  return '';
+}
+
+function setProductCategory(category){
+  selectedProductCategory=category;
+  const subs=productSubcategories[category]||[];
+  selectedProductSubcategory=subs[0]||'';
+  document.querySelectorAll('.product-category').forEach(btn=>btn.classList.toggle('active',btn.dataset.category===category));
+  $('productSearch').value='';
+  renderProductSubcategories();
+  renderProductOptions();
+}
+
+function setProductSubcategory(subcategory){
+  selectedProductSubcategory=subcategory;
+  document.querySelectorAll('.product-subcategory').forEach(btn=>btn.classList.toggle('active',btn.dataset.subcategory===subcategory));
+  $('productSearch').value='';
+  // Keep the legacy operator selector synchronized when the operator category is used.
+  if(selectedProductCategory==='Operator'){
+    const radio=[...document.querySelectorAll('input[name="operator"]')].find(r=>String(r.value).toLowerCase()===subcategory.toLowerCase());
+    if(radio){radio.checked=true;toggleOperator();calc();}
+  }
+  renderProductOptions();
+}
+
+function renderProductSubcategories(){
+  const wrap=$('productSubcategoryGrid');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  (productSubcategories[selectedProductCategory]||[]).forEach(sub=>{
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='product-subcategory'+(sub===selectedProductSubcategory?' active':'');
+    btn.dataset.subcategory=sub;
+    btn.textContent=sub;
+    btn.onclick=()=>setProductSubcategory(sub);
+    wrap.appendChild(btn);
+  });
+}
+
+function renderProductOptions(){
+  const select=$('productSelect');
+  if(!select) return;
+  const q=String($('productSearch')?.value||'').trim().toLowerCase();
+  const list=masterData.products.filter(p=>{
+    if(String(p.status||'ACTIVE').toUpperCase()!=='ACTIVE') return false;
+    if(inferProductCategory(p)!==selectedProductCategory) return false;
+    if(inferProductSubcategory(p)!==selectedProductSubcategory) return false;
+    const hay=[p.productId,p.productName,p.productType,p.variant,p.color,p.memory].join(' ').toLowerCase();
+    return !q||hay.includes(q);
+  });
+  const current=select.value;
+  select.innerHTML='<option value="">Pilih Produk</option>';
+  list.forEach(p=>{
+    const option=document.createElement('option');
+    option.value=p.productId;
+    option.textContent=p.productName+' — '+rupiah(p.price);
+    select.appendChild(option);
+  });
+  if(list.some(p=>String(p.productId)===String(current))) select.value=current;
+  else if(current){
+    const chosen=masterData.products.find(p=>String(p.productId)===String(current));
+    if(chosen && inferProductCategory(chosen)===selectedProductCategory && inferProductSubcategory(chosen)===selectedProductSubcategory) select.value=current;
+  }
+  const count=$('productCount');
+  if(count){
+    count.textContent=list.length ? `${list.length} produk tersedia${q?' untuk pencarian "'+$('productSearch').value.trim()+'"':''}.` : 'Belum ada produk di kategori ini. Tambahkan produk dan isi kolom CATEGORY serta SUB_CATEGORY di PRODUCT_MASTER.';
+  }
+}
+
+function renderProducts(){
+  renderProductSubcategories();
+  renderProductOptions();
+}
+
 async function login(){
-  const nik=$('loginNik').value.trim();
+
+  const storeId =
+    $('loginStore').value;
+
+  const nik =
+    $('loginNik').value.trim();
+
+
+  if(!storeId)
+    return msg(
+      'loginMsg',
+      'error',
+      'Silakan pilih Store.'
+    );
+
 
   if(!nik)
-    return msg('loginMsg','error','Silakan masukkan NIK.');
+    return msg(
+      'loginMsg',
+      'error',
+      'Silakan masukkan NIK.'
+    );
 
-  $('loginBtn').disabled=true;
-  $('loginBtn').textContent='Memeriksa...';
+
+  $('loginBtn').disabled = true;
+
+  $('loginBtn').textContent =
+    'Memeriksa...';
+
 
   try{
-    const r=await api({action:'login',nik});
-    if(!r.success) throw Error(r.message||'NIK tidak valid.');
 
-    currentUser={
+    const r =
+      await api({
+        action:'validate',
+        storeId,
+        nik
+      });
+
+
+    if(!r.success)
+      throw Error(
+        r.message ||
+        'NIK tidak valid.'
+      );
+
+
+    currentUser = {
+
       nik:r.user.nik,
-      eroName:r.user.eroName||r.user.name,
-      name:r.user.name||r.user.eroName,
-      role:(r.user.role||'SALES').toUpperCase(),
+
+      eroName:r.user.eroName,
+
       storeId:r.user.storeId,
-      storeName:r.user.storeName,
-      stores:r.stores||r.user.stores||[]
+
+      storeName:r.user.storeName
+
     };
 
-    sessionStorage.setItem('nasa_user',JSON.stringify(currentUser));
+
+    sessionStorage.setItem(
+      'nasa_user',
+      JSON.stringify(currentUser)
+    );
+
+
     openApp();
+
+
   }catch(e){
-    msg('loginMsg','error',e.message);
+
+    msg(
+      'loginMsg',
+      'error',
+      e.message
+    );
+
+
   }finally{
-    $('loginBtn').disabled=false;
-    $('loginBtn').textContent='Lanjut';
+
+    $('loginBtn').disabled = false;
+
+    $('loginBtn').textContent =
+      'Lanjut';
+
   }
+
 }
 
-function isManagerRole(role){
-  const r=String(role||'').toUpperCase();
-  return r==='TSH'||r==='SL';
-}
 
 function openApp(){
-  $('loginPage').classList.add('hidden');
-  $('app').classList.remove('hidden');
 
-  const isTsh=isManagerRole(currentUser.role);
-  $('headStore').textContent=isTsh?'ALL STORE':(currentUser.storeName||'-');
-  $('headEro').textContent=(currentUser.name||currentUser.eroName||'-')+' • '+currentUser.role;
+  $('loginPage')
+    .classList
+    .add('hidden');
 
-  if(isTsh){
-    $('tshStoreWrap').classList.remove('hidden');
-    renderStores();
-    $('tshStoreSelect').value='ALL';
-    $('calcStore').value='Pilih Store';
-    $('calcEro').value=currentUser.name||currentUser.eroName||'-';
-    $('tshManagement').classList.remove('hidden');
-    $('userMasterCard').classList.remove('hidden');
-    userRoleChanged();
-  }else{
-    $('tshStoreWrap').classList.add('hidden');
-    $('tshManagement').classList.add('hidden');
-    $('userMasterCard').classList.add('hidden');
-    $('calcStore').value=currentUser.storeName||'';
-    $('calcEro').value=currentUser.name||currentUser.eroName||'';
-  }
+  $('app')
+    .classList
+    .remove('hidden');
+
+
+  $('headStore').textContent =
+    currentUser.storeName;
+
+  $('headEro').textContent =
+    currentUser.eroName;
+
+
+  $('calcStore').value =
+    currentUser.storeName;
+
+  $('calcEro').value =
+    currentUser.eroName;
+
 
   loadOverview();
+
 }
+
 
 function logout(){
 
@@ -1804,73 +1971,6 @@ function page(name,btn){
   if(name === 'history')
     loadHistory();
 
-}
-
-
-function getSelectedStoreId(){
-  if(currentUser && isManagerRole(currentUser.role)){
-    return $('tshStoreSelect')?.value || 'ALL';
-  }
-  return currentUser?.storeId || '';
-}
-
-function tshStoreChanged(){
-  const sid=getSelectedStoreId();
-  const store=(masterData.stores||[]).find(x=>String(x.storeId).toUpperCase()===String(sid).toUpperCase());
-  $('headStore').textContent=sid==='ALL'?'ALL STORE':(store?.storeName||sid);
-  $('calcStore').value=sid==='ALL'?'Pilih Store':(store?.storeName||sid);
-  historyData=[];
-  loadOverview();
-  if(!document.getElementById('history').classList.contains('hidden')) loadHistory();
-}
-
-function userRoleChanged(){
-  const role=$('newUserRole')?.value||'SALES';
-  const wrap=$('newUserStoreWrap');
-  if(!wrap)return;
-  wrap.style.display=isManagerRole(role)?'none':'block';
-}
-
-async function addStoreUI(){
-  if(!isManagerRole(currentUser?.role)) return alert('Hanya TSH/SL yang dapat menambahkan Store.');
-  const data={
-    storeId:$('newStoreId').value.trim(),
-    storeName:$('newStoreName').value.trim(),
-    area:$('newStoreArea').value.trim(),
-    tshNik:$('newStoreTshNik').value.trim()||currentUser.nik
-  };
-  try{
-    const r=await api({action:'addstore',data,actorNik:currentUser.nik});
-    if(!r.success)throw Error(r.message);
-    msg('managementMsg','success',r.message);
-    $('newStoreId').value='';$('newStoreName').value='';$('newStoreArea').value='';$('newStoreTshNik').value='';
-    await refreshMaster();
-  }catch(e){msg('managementMsg','error',e.message);}
-}
-
-async function addUserUI(){
-  if(!isManagerRole(currentUser?.role)) return alert('Hanya TSH/SL yang dapat menambahkan User.');
-  const role=$('newUserRole').value;
-  const data={
-    nik:$('newUserNik').value.trim(),
-    name:$('newUserName').value.trim(),
-    role,
-    storeId:isManagerRole(role)?'ALL':$('newUserStore').value
-  };
-  try{
-    const r=await api({action:'adduser',data,actorNik:currentUser.nik});
-    if(!r.success)throw Error(r.message);
-    msg('managementMsg','success',r.message);
-    $('newUserNik').value='';$('newUserName').value='';
-    await refreshMaster();
-  }catch(e){msg('managementMsg','error',e.message);}
-}
-
-async function refreshMaster(){
-  const r=await api({action:'master'});
-  if(!r.success)throw Error(r.message||'Gagal refresh master');
-  masterData={stores:r.stores||[],users:r.users||[],eros:r.eros||[],products:r.products||[]};
-  renderStores();renderProducts();renderMaster();
 }
 
 
@@ -1964,6 +2064,39 @@ function getAcc(){
   return {items,total};
 }
 
+function toggleSCP(){
+  const selected=document.querySelector('input[name="scpDuration"]:checked');
+  const wrap=$('scpPriceWrap');
+  const input=$('scpPrice');
+  const active=!!selected;
+  input.disabled=!active;
+  wrap.classList.toggle('active',active);
+  document.querySelectorAll('input[name="scpDuration"]').forEach(r=>{
+    const status=r.nextElementSibling?.querySelector('.choice-status');
+    if(status) status.textContent=r.checked?'Aktif':'Pilih';
+  });
+  if(active && document.activeElement?.id!=='scpPrice' && !input.value){
+    setTimeout(()=>input.focus(),50);
+  }
+}
+
+function toggleOperator(){
+  const selected=document.querySelector('input[name="operator"]:checked');
+  const wrap=$('operatorPriceWrap');
+  const input=$('operatorPrice');
+  const active=!!selected && selected.value!=='';
+  input.disabled=!active;
+  wrap.classList.toggle('active',active);
+  document.querySelectorAll('input[name="operator"]').forEach(r=>{
+    const status=r.nextElementSibling?.querySelector('.choice-status');
+    if(status) status.textContent=r.checked?'Aktif':'Pilih';
+  });
+  if(!active) input.value='';
+  if(active && document.activeElement?.id!=='operatorPrice' && !input.value){
+    setTimeout(()=>input.focus(),50);
+  }
+}
+
 function getRadio(name){
   const el=document.querySelector(`input[name="${name}"]:checked`);
   return el ? el.value : '';
@@ -2030,17 +2163,17 @@ function renderReceipt(){
 
 async function save(){
   const c=calc();
-  if(isManagerRole(currentUser?.role) && getSelectedStoreId()==='ALL') return msg('saveMsg','error','TSH/SL harus memilih Store terlebih dahulu sebelum menyimpan simulasi.');
   if(!c.p) return msg('saveMsg','error','Silakan pilih produk.');
-  const data={storeId:getSelectedStoreId(),nik:currentUser.nik,productId:c.p.productId,customerName:$('customerName').value.trim(),customerPhone:$('customerPhone').value.trim(),customerEmail:$('customerEmail').value.trim(),accItems:c.acc.items,accCasing:num($('accCasing').value),accAntigores:num($('accAntigores').value),accAdaptor:num($('accAdaptor').value),accCable:num($('accCable').value),accAudio:num($('accAudio').value),accLainnya:num($('accLainnya').value),scpDuration:c.scpDuration,scpPrice:c.scpPrice,operator:c.operator,operatorPrice:c.operatorPrice,cbHp:c.cb,voucher:c.vo,tradeIn:c.tr,cashbackTambahanTradeIn:c.ct,cashbackPwp:c.pw,cashbackBank:c.bk,potonganLain:c.pl};
+  const data={storeId:currentUser.storeId,nik:currentUser.nik,productId:c.p.productId,customerName:$('customerName').value.trim(),customerPhone:$('customerPhone').value.trim(),customerEmail:$('customerEmail').value.trim(),accItems:c.acc.items,accCasing:num($('accCasing').value),accAntigores:num($('accAntigores').value),accAdaptor:num($('accAdaptor').value),accCable:num($('accCable').value),accAudio:num($('accAudio').value),accLainnya:num($('accLainnya').value),scpDuration:c.scpDuration,scpPrice:c.scpPrice,operator:c.operator,operatorPrice:c.operatorPrice,cbHp:c.cb,voucher:c.vo,tradeIn:c.tr,cashbackTambahanTradeIn:c.ct,cashbackPwp:c.pw,cashbackBank:c.bk,potonganLain:c.pl};
   $('saveBtn').disabled=true; $('saveBtn').textContent='Menyimpan...';
   try{const r=await api({action:'save',data});if(!r.success)throw Error(r.message||'Gagal menyimpan');msg('saveMsg','success','Simulasi berhasil disimpan.');renderReceipt();setTimeout(loadOverview,400);}
   catch(e){msg('saveMsg','error',e.message)} finally{$('saveBtn').disabled=false;$('saveBtn').textContent='Simpan Simulasi';}
 }
 
 function resetCalc(clear=true){
+  selectedProductCategory='Device';selectedProductSubcategory='Series S';document.querySelectorAll('.product-category').forEach(btn=>btn.classList.toggle('active',btn.dataset.category==='Device'));if($('productSearch'))$('productSearch').value='';renderProductSubcategories();renderProductOptions();
   ['productSelect','customerName','customerPhone','customerEmail','accCasing','accAntigores','accAdaptor','accCable','accAudio','accLainnya','scpPrice','operatorPrice','cbHp','voucher','tradeIn','cashbackTambahanTradeIn','cashbackPwp','cashbackBank','potonganLain'].forEach(id=>$(id).value='');
-  document.querySelectorAll('.accCheck').forEach(x=>{x.checked=false;toggleAcc(x);}); document.querySelectorAll('input[name="scpDuration"],input[name="operator"]').forEach(x=>x.checked=false);
+  document.querySelectorAll('.accCheck').forEach(x=>{x.checked=false;toggleAcc(x);}); document.querySelectorAll('input[name="scpDuration"],input[name="operator"]').forEach(x=>x.checked=false); toggleSCP(); toggleOperator();
   $('productPrice').textContent=rupiah(0); $('accTotal').textContent=rupiah(0); $('resultPrice').textContent=rupiah(0); $('resultBenefit').textContent=rupiah(0); $('resultTrade').textContent=rupiah(0); $('resultPay').textContent=rupiah(0); [3,6,12,24].forEach(t=>$('i'+t).textContent=rupiah(0));
   $('receiptBox').innerHTML='<div class="empty">Pilih produk untuk melihat nota.</div>';
   if(clear)$('saveMsg').className='hidden';
@@ -2068,7 +2201,9 @@ function printReceipt(){
 
 function loadFromHistory(x){
   page('calculator',document.querySelector('.nav button:nth-child(2)'));
-  $('productSelect').value=x.productId||''; productChanged();
+  const historyProduct=masterData.products.find(p=>String(p.productId)===String(x.productId||''));
+  if(historyProduct){selectedProductCategory=inferProductCategory(historyProduct);selectedProductSubcategory=inferProductSubcategory(historyProduct);document.querySelectorAll('.product-category').forEach(btn=>btn.classList.toggle('active',btn.dataset.category===selectedProductCategory));renderProductSubcategories();renderProductOptions();}
+  $('productSearch').value='';renderProductOptions();$('productSelect').value=x.productId||''; productChanged();
   $('customerName').value=x.customerName||''; $('customerPhone').value=x.customerPhone||''; $('customerEmail').value=x.customerEmail||'';
   const accMap={Casing:'accCasing',Antigores:'accAntigores',Adaptor:'accAdaptor',Cable:'accCable',Audio:'accAudio',Lainnya:'accLainnya'};
   document.querySelectorAll('.accCheck').forEach(ch=>{
@@ -2081,8 +2216,10 @@ function loadFromHistory(x){
   });
   document.querySelectorAll('input[name="scpDuration"]').forEach(r=>r.checked=String(r.value)===String(x.scpDuration||''));
   $('scpPrice').value=x.scpPrice?String(x.scpPrice):''; if(x.scpPrice)fmt($('scpPrice'));
+  toggleSCP();
   document.querySelectorAll('input[name="operator"]').forEach(r=>r.checked=String(r.value)===String(x.operator||''));
   $('operatorPrice').value=x.operatorPrice?String(x.operatorPrice):''; if(x.operatorPrice)fmt($('operatorPrice'));
+  toggleOperator();
   [['cbHp','cbHp'],['voucher','voucher'],['tradeIn','tradeIn'],['cashbackTambahanTradeIn','cashbackTambahanTradeIn'],['cashbackPwp','cashbackPwp'],['cashbackBank','cashbackBank'],['potonganLain','potonganLain']].forEach(([id,key])=>{const v=Number(x[key]||0);$(id).value=v?String(v):'';if(v)fmt($(id));});
   calc(); renderReceipt(); window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -2107,12 +2244,9 @@ async function loadOverview(){
   $('today').innerHTML='<div class="loading">Memuat...</div>';
   $('dailyChart').innerHTML='<div class="loading">Memuat...</div>';
   try{
-    const r=await api({action:'history',storeId:getSelectedStoreId(),nik:currentUser.nik});
+    const r=await api({action:'history',storeId:currentUser.storeId,nik:currentUser.nik});
     if(!r.success)throw Error(r.message||'Gagal mengambil data');
     historyData=r.data||r.history||[];
-    if(isManagerRole(currentUser.role) && getSelectedStoreId()!=='ALL'){
-      historyData=historyData.filter(x=>String(x.storeId).toUpperCase()===String(getSelectedStoreId()).toUpperCase());
-    }
     renderOverview();
   }catch(e){
     $('today').innerHTML='<div class="error">'+esc(e.message)+'</div>';
@@ -2166,7 +2300,7 @@ function renderOverview(){
   renderDailyChart(all);
 
   const recent=all.slice().sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).slice(0,20);
-  $('today').innerHTML=recent.map(x=>`<div class="listrow"><span><span class="badge">${esc(x.eroName||'-')}</span> ${isManagerRole(currentUser.role)?`<span class="badge">${esc(x.storeName||x.storeId||'-')}</span> `:''}${esc(x.productName||'-')}<br><small style="color:#98a2b3">${formatDate(x.timestamp)}</small></span><b>${rupiah(x.netPrice)}</b></div>`).join('')||'<div class="empty">Belum ada simulasi.</div>';
+  $('today').innerHTML=recent.map(x=>`<div class="listrow"><span><span class="badge">${esc(x.eroName||'-')}</span> ${esc(x.productName||'-')}<br><small style="color:#98a2b3">${formatDate(x.timestamp)}</small></span><b>${rupiah(x.netPrice)}</b></div>`).join('')||'<div class="empty">Belum ada simulasi.</div>';
 }
 
 function renderDailyChart(all){
@@ -2194,8 +2328,10 @@ async function loadHistory(){
     const r =
       await api({
         action:'history',
-        storeId:getSelectedStoreId(),
-        nik:currentUser.nik
+        storeId:
+          currentUser.storeId,
+        nik:
+          currentUser.nik
       });
 
 
@@ -2203,16 +2339,10 @@ async function loadHistory(){
       throw Error(r.message);
 
 
-    let h =
+    const h =
       r.data ||
       r.history ||
       [];
-
-    if(isManagerRole(currentUser.role) && getSelectedStoreId()!=='ALL'){
-      h=h.filter(x=>String(x.storeId).toUpperCase()===String(getSelectedStoreId()).toUpperCase());
-    }
-
-    historyData=h;
 
 
     $('historyCount').textContent =
@@ -2252,8 +2382,6 @@ async function loadHistory(){
 
             <th>Tanggal</th>
 
-            ${isManagerRole(currentUser.role)?'<th>Store</th>':''}
-
             <th>Customer</th>
 
             <th>ERO</th>
@@ -2288,8 +2416,6 @@ async function loadHistory(){
                   )
                 )}
               </td>
-
-              ${isManagerRole(currentUser.role)?`<td><span class="badge">${esc(x.storeName||x.storeId||'-')}</span></td>`:''}
 
               <td>
                 <b>
@@ -2412,18 +2538,6 @@ function renderMaster(){
     .join('');
 
 
-  if($('userMaster')){
-    $('userMaster').innerHTML=(masterData.users||[]).map(x=>
-      `<div class="master">
-        <b>${esc(x.name||'-')}</b>
-        NIK: ${mask(x.nik)}
-        <br>Role: <span class="badge">${esc(x.role||'-')}</span>
-        <br>Store: ${esc(isManagerRole(x.role)?'ALL':(x.storeId||'-'))}
-        <br>Status: ${esc(x.status||'-')}
-      </div>`
-    ).join('') || '<div class="empty">Belum ada user.</div>';
-  }
-
   $('productMaster').innerHTML =
     masterData.products
     .map(
@@ -2529,6 +2643,8 @@ init();
 // Pastikan semua input harga ACC terkunci saat pertama kali halaman dibuka.
 document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('.accCheck').forEach(ch=>toggleAcc(ch));
+  toggleSCP();
+  toggleOperator();
 });
 </script>
 
