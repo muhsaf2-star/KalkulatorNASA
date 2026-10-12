@@ -1701,14 +1701,14 @@ function inferProductSubcategory(p){
   const name=String(p.productName||'').trim().toLowerCase();
   const category=inferProductCategory(p);
   if(category==='Device'){
-    if(type==='a' || /galaxy a\d|series a/.test(name)) return 'Series A';
-    if(type==='s' || /galaxy s\d|series s/.test(name)) return 'Series S';
-    if(type==='z' || /galaxy z|fold\d|flip\d|series z/.test(name)) return 'Series Z';
-    if(type==='tab' || /galaxy tab|series tab/.test(name)) return 'Series Tab';
+    if(['a','a series','series a'].includes(type) || /galaxy a\d|series a/.test(name)) return 'Series A';
+    if(['s','s series','series s'].includes(type) || /galaxy s\d|series s/.test(name)) return 'Series S';
+    if(['z','z series','series z'].includes(type) || /galaxy z|fold\d|flip\d|series z/.test(name)) return 'Series Z';
+    if(['tab','tab series','series tab'].includes(type) || /galaxy tab|series tab/.test(name)) return 'Series Tab';
   }
   if(category==='Aksesoris'){
-    if(type==='watch' || /watch/.test(name)) return 'Watch';
-    if(type==='buds' || /buds|earbuds/.test(name)) return 'Buds';
+    if(['watch','watch series'].includes(type) || /watch/.test(name)) return 'Watch';
+    if(['buds','buds series'].includes(type) || /buds|earbuds/.test(name)) return 'Buds';
     return 'Aksesoris Lain';
   }
   if(category==='Operator'){
@@ -1782,7 +1782,7 @@ function renderProductOptions(){
   }
   const count=$('productCount');
   if(count){
-    count.textContent=list.length ? `${list.length} produk tersedia${q?' untuk pencarian "'+$('productSearch').value.trim()+'"':''}.` : 'Belum ada produk di kategori ini. Tambahkan produk dan isi kolom CATEGORY serta SUB_CATEGORY di PRODUCT_MASTER.';
+    count.textContent=list.length ? `${list.length} produk tersedia${q?' untuk pencarian "'+$('productSearch').value.trim()+'"':''}.` : 'Belum ada produk di kategori ini. Periksa CATEGORY dan PRODUCT_TYPE di PRODUCT_MASTER.';
   }
 }
 
